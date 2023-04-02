@@ -1,0 +1,148 @@
+{% load static %}
+{% load kitty_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=", initial-scale=1.0">
+    <link type="text/css" href="{% static 'kitty/css/styles.css' %}" rel="stylesheet" />
+    <link rel="shortcut icon" href="{% static 'kitty/img/main.ico' %}" type="image/x-icon"/>
+    <title>{{title}}</title>
+<!-- Не работают стили у пагинации (хз почему, если через style то все работает. Все подключено правильно и код правильно написан) -->
+    <style>
+.list-pages {
+	text-align: center;
+	margin: 0 0 20px 0;
+}
+.list-pages ul {
+	margin: 20px 0 0 0;
+	padding: 0;
+	list-style: none;
+}
+.list-pages ul li {
+	display: inline-block;
+	margin: 0 20px 0 0;
+}
+.list-pages a {
+	color: #000;
+	font-size: 24px;
+	text-decoration: none;
+}
+.list-pages .page-num, .page-num-selected {
+	display: inline-block;
+	width: 60px;
+	height: 44px;
+	padding: 16px 0 0 0;
+	border: 1px solid #d0d0d0;
+	border-radius: 30px;
+}
+.list-pages .page-num:hover {
+	box-shadow: 3px 3px 1px #d0d0d0; 
+}
+.list-pages .page-num-selected {
+	border: none;
+	color: #000;
+	font-size: 20px;
+}
+.list-pages .page-num-selected:hover {
+	box-shadow: none; 
+}
+
+    </style>
+</head>
+<body>
+<table class="table-page" border=0 cellpadding="0" cellspacing="0">
+<tr><td valign="top">
+{% block mainmenu %}
+        <div class="header">
+                <ul id="mainmenu" class="mainmenu">
+                    <li class="logo"><a href="{% url 'home' %}"><div class="logo"><img src="{% static 'kitty/img/logo.png' %}" alt="logo"></div></a></li>
+
+{% menu %}
+{% if request.user.is_authenticated %}
+    <li class="last"> {{user.username}} | <a href="{% url 'logout' %}">Выйти</a></li>
+{% else %}
+    <li class="last"><a href="{% url 'register' %}">Регистрация</a> | <a href="{% url 'login' %}">Войти</a></li>
+{% endif %}
+
+                </ul>
+                <div class="clear"></div>
+        </div>
+{% endblock mainmenu %}
+
+<table class="table-content" border=0 cellpadding="0" cellspacing="0">
+<tr>
+<!-- Sidebar слева -->
+    <td valign="top" class="left-chapters">
+        <ul id="leftchapter">
+{% if cat_selected == 0 %}
+        <li class="selected">Все категории</li>
+{% else %}
+        <li><a href="{% url 'home' %}">Все категории</a></li>
+{% endif %}
+
+{% show_categories 'name' cat_selected %}
+
+            <li class="share">
+                <p>Наш канал</p>
+                <a class="share-yt" href="https://www.youtube.com/watch?v=X08MbYveSFI&ab_channel=LiveLinessMusic"><img src="{% static 'kitty/img/share_yt.png' %}"></a>
+            </li>
+        </ul>
+    </td>
+<!-- Конец Sidebar'a -->
+<td valign="top" class="content">
+    <!-- Хлебные крошки -->
+    {% block breadcrunbs %}
+    {% endblock breadcrunbs %}
+
+<!-- Блок контента -->
+    <div class="content-text">
+    {% block content %}
+    {% endblock content %}
+
+{% if page_obj.has_other_pages %}
+<nav class="list-pages">
+        <ul>
+    {% if page_obj.has_previous %}
+    <li class="page-num">
+        <a href="?page={{ page_obj.previous_page_number }}">&lt;</a>
+    </li>
+    {% endif %}
+            {% for p in paginator.page_range %}
+            {% if page_obj.number == p %}
+            <li class="page-num page-num-selected">{{ p }}</li>
+            {% elif p >= page_obj.number|add:-2 and p <= page.obj.number|add:2 %}
+            <li class="page-num">
+                <a href="?page={{ p }}">{{ p }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+
+    {% if page_obj.has_next %}
+    <li class="page-num">
+        <a href="?page={{ page_obj.next_page_number }}">&gt;</a>
+    </li>
+    {% endif %}
+
+        </ul>
+</nav>
+{% endif %}
+
+    </div>
+<!-- Конец блока контента -->
+
+
+</td></tr></table>
+</td></tr>
+
+<!-- Footer -->
+<tr><td valign="top">
+    <div id="footer">
+        <p>2021 Частичное или полное копирование информации с данного сайта для распространения</p>
+    </div>
+</td></tr></table>
+<!-- Конец Footer'a -->
+
+</body>
+</html>
